@@ -1,0 +1,12 @@
+name: LWC_temperature_dash
+title: LWC_temperature_dash
+username:
+account: tshawytscha
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 537488
+bundleId: 1665664
+url: https://tshawytscha.shinyapps.io/LWC_temperature_dash/
+when: 1540597078.90966
+asMultiple: FALSE
+asStatic: FALSE

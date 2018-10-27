@@ -57,9 +57,9 @@ ui <- dashboardPage(
   dashboardBody(
     tags$head(tags$style(HTML(".small-box {height: 125px}"))),
     fluidRow(column(width = 12,
-      valueBoxOutput("days_exceeded", width = 6),
-      valueBoxOutput("max_consecutive", width = 6)
-      ),
+                    valueBoxOutput("days_exceeded", width = 6),
+                    valueBoxOutput("max_consecutive", width = 6)
+    ),
     
     fluidRow(box(width=12, plotOutput("sdaMax_line"))))))
 
@@ -85,10 +85,9 @@ server <- function(input, output) {
   )
   
   output$max_consecutive <- renderValueBox(
-    valueBox(consequtive_days(temp_data, input$select),
+    valueBox(max_consequtive_days(temp_data, input$select),
              subtitle = "Maximum Consecutive Days the SDA Max Temp Exceeded 18 C")
   )
 }
 
 shinyApp(ui, server)
-
