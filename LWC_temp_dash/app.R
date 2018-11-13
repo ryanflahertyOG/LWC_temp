@@ -14,6 +14,7 @@ library(tidyverse)
 library(lubridate)
 library(ggplot2)
 library(ggthemes)
+library(plotly)
 
 ## Data
 
@@ -61,32 +62,35 @@ ui <- dashboardPage(
                     valueBoxOutput("max_consecutive", width = 6)
     ),
     
-    fluidRow(box(width=12, plotOutput("sdaMax_line"))))))
+    fluidRow(box(width=12, plotlyOutput("sdaMax_line"))))))
 
 
 server <- function(input, output) {
   # set.seed(122)
   # histdata <- rnorm(500)
   
-  output$sdaMax_line <- renderPlot({
-    temp_data %>%
+  output$sdaMax_line <- renderPlotly({
+    temp_lp <- temp_data %>%
       filter(Station == input$select) %>%
       ggplot(aes(Date, `sda Max`)) +
       geom_line() +
       geom_hline(yintercept = 18, color = 'red') +
       theme_tufte(base_size = 16) +
-      labs(title = 'Seven Day Average Maximum Temperature',
-           subtitle = input$select)
+      labs(title = 'Seven Day Average Maximum Temperature - 2017',
+           subtitle = input$select,
+           y = 'SDA Max Temperature (°C)')
+    ggplotly(temp_lp)
+    
   })
   
   output$days_exceeded <- renderValueBox(
     valueBox(threshold_counter(temp_data, input$select),
-             subtitle = "Total Days the SDA Max Temp Exceeded 18 C")
+             subtitle = "Total Days the SDA Max Temp Exceeded 18 C in 2017")
   )
   
   output$max_consecutive <- renderValueBox(
     valueBox(max_consequtive_days(temp_data, input$select),
-             subtitle = "Maximum Consecutive Days the SDA Max Temp Exceeded 18 C")
+             subtitle = "Maximum Consecutive Days the SDA Max Temp Exceeded 18 C in 2017")
   )
 }
 

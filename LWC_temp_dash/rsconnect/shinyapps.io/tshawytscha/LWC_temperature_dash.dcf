@@ -5,8 +5,8 @@ account: tshawytscha
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 537488
-bundleId: 1665664
+bundleId: 1698932
 url: https://tshawytscha.shinyapps.io/LWC_temperature_dash/
-when: 1540597078.90966
+when: 1542135978.63266
 asMultiple: FALSE
 asStatic: FALSE
