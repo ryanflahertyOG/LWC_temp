@@ -18,26 +18,29 @@ library(plotly)
 
 ## Data
 
-temp_data <- read_csv('2017_DailyDB_PublicSites.csv') %>%
-  mutate(DateTimeMax = mdy_hm(DateTimeMax), DateTimeMin = mdy_hm(DateTimeMin), Date = mdy(Date))
+temp_data <- read_csv('AIIT_DailyStats.csv') %>%
+  mutate(Date = mdy(Date))
 
 ## Functions and variables
 
-stations <- temp_data$Station %>%
+stations <- temp_data$Station_Name %>%
   unique()
 
-max_consequtive_days <- function(data, station){
+years <- temp_data$Year %>%
+  unique()
+
+max_consequtive_days <- function(data, station, year){
   threshold_exceeded_consequtive <- data %>%
-    filter(Station == station) %>%
-    mutate(threshold = if_else(`sda Max` >= 18, 1, 0, missing = 0))
+    filter(Station_Name == station & Year == year) %>%
+    mutate(threshold = if_else(sda_Max >= 18, 1, 0, missing = 0))
   
   rle_object <- rle(threshold_exceeded_consequtive$threshold)
   return(with(rle_object, max(lengths[values==1])))
 }
 
-threshold_counter <- function(data, station){
+threshold_counter <- function(data, station, year){
   counter <- data %>%
-    filter(Station == station & `sda Max` > 18) %>%
+    filter(Station_Name == station & sda_Max > 18 & Year == year) %>%
     summarize(n = n())
   return(counter$n)
 }
@@ -52,7 +55,16 @@ ui <- dashboardPage(
     sidebarMenu(
       menuItem(
         title = "Sites",
-        selectInput("select", "Site:", stations)
+        selectInput("select_site", "Site:", stations)
+      ),
+      # menuItem(
+      #   title = "Year",
+      #   selectInput("radio_year", "Year:", years)
+      # )
+      menuItem(
+        title = "Year",
+        radioButtons("radio_year", "Year:",
+                     c("2017" = "2017", "2018" = "2018"))
       )
     )),
   dashboardBody(
@@ -71,25 +83,25 @@ server <- function(input, output) {
   
   output$sdaMax_line <- renderPlotly({
     temp_lp <- temp_data %>%
-      filter(Station == input$select) %>%
-      ggplot(aes(Date, `sda Max`)) +
+      filter(Station_Name == input$select_site, Year == input$radio_year) %>%
+      ggplot(aes(Date, sda_Max)) +
       geom_line() +
       geom_hline(yintercept = 18, color = 'red') +
       theme_tufte(base_size = 16) +
-      labs(title = 'Seven Day Average Maximum Temperature - 2017',
-           subtitle = input$select,
+      labs(title = 'Seven Day Average Maximum Temperature',
+           subtitle = input$select_site,
            y = 'SDA Max Temperature (°C)')
     ggplotly(temp_lp)
     
   })
   
   output$days_exceeded <- renderValueBox(
-    valueBox(threshold_counter(temp_data, input$select),
+    valueBox(threshold_counter(temp_data, input$select_site, input$radio_year),
              subtitle = "Total Days the SDA Max Temp Exceeded 18 C in 2017")
   )
   
   output$max_consecutive <- renderValueBox(
-    valueBox(max_consequtive_days(temp_data, input$select),
+    valueBox(max_consequtive_days(temp_data, input$select_site, input$radio_year),
              subtitle = "Maximum Consecutive Days the SDA Max Temp Exceeded 18 C in 2017")
   )
 }
